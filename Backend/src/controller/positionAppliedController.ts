@@ -26,6 +26,9 @@ const applyToPosition = async (req: Request, res: Response): Promise<any> => {
       return res.status(401).json({ message: "Unauthorized: no userId" });
     }
 
+    console.log(userId);
+    
+
     // cek society dari user
     const society = await prisma.society.findFirst({ where: { userId } });
     if (!society) return res.status(404).json({ message: "Society not found" });
@@ -111,6 +114,7 @@ const getCompanyAppliedPositions = async (
     });
 
     return res.status(200).json({
+      success: true,
       message: `List of applied positions for company ${company.name}`,
       data: applications,
     });
@@ -140,6 +144,7 @@ const updatePositionAppliedStatus = async (
     });
 
     return res.status(200).json({
+      success: true,
       message: `Position applied status has been updated to ${status}`,
       data: updated,
     });

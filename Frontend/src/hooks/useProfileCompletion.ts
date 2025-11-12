@@ -30,7 +30,7 @@ export const useProfileCompletion = (): UseProfileCompletionReturn => {
       if (user.role === "HRD") {
         response = await profileApi.getCompanyProfile(user.id, token);
       } else {
-        response = await profileApi.getSocietyProfile(user.id, token);
+        response = await profileApi.getSocietyProfile(token);
       }
 
       if (response.success && response.data) {

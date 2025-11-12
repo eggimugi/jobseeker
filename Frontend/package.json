@@ -9,12 +9,15 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@hookform/resolvers": "^5.2.2",
     "@prisma/client": "^6.14.0",
     "axios": "^1.11.0",
     "lucide-react": "^0.542.0",
-    "next": "15.4.6",
+    "next": "^15.5.4",
     "react": "19.1.0",
     "react-dom": "19.1.0",
+    "react-hook-form": "^7.65.0",
+    "recharts": "^3.3.0",
     "zod": "^4.1.4"
   },
   "devDependencies": {
@@ -25,9 +28,11 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^20.19.11",
     "@types/react": "^19",
+    "@types/react-burger-menu": "^2.8.7",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.4.6",
+    "react-burger-menu": "^3.1.0",
     "tailwindcss": "^4",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.2"

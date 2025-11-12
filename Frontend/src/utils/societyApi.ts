@@ -4,6 +4,7 @@ import {
   PortofolioResponse,
   dataResponse,
   AvailablePosition,
+  PositionApplied,
 } from "@/types/society";
 import { SocietyProfile, ProfileResponse } from "@/types/profile";
 
@@ -19,11 +20,16 @@ export const societyApi = {
 
 // API endpoints for managing society portfolios
 export const portofolioApi = {
-  getPortofolios: async (
-    societyId: number,
+  getPortofoliosById: async (
+    id: number,
     token: string
   ): Promise<PortofolioResponse<Portofolio>> => {
-    return apiRequest(`/portofolio/${societyId}`, { method: "GET" }, token);
+    return apiRequest(`/portofolio/${id}`, { method: "GET" }, token);
+  },
+  getPortofolios: async (
+    token: string
+  ): Promise<PortofolioResponse<Portofolio>> => {
+    return apiRequest(`/portofolio`, { method: "GET" }, token);
   },
   createPortofolio: async (
     data: Omit<Portofolio, "id" | "createdAt" | "updatedAt">,
@@ -51,6 +57,7 @@ export const portofolioApi = {
     token: string
   ): Promise<PortofolioResponse<Portofolio>> => {
     const formData = new FormData();
+    console.log("File before append:", data.file);
     if (data.skill) formData.append("skill", data.skill);
     if (data.description) formData.append("description", data.description);
     if (data.file) formData.append("file", data.file);
@@ -80,6 +87,16 @@ export const applyPositionApi = {
     return apiRequest(`/availablePosition`, { method: "GET" }, token);
   },
 
+  getSocietyAppliedPositions: async (
+    token: string
+  ): Promise<dataResponse<PositionApplied[]>> => {
+    return apiRequest(
+      `/positionApplied/appliedPosition`,
+      { method: "GET" },
+      token
+    );
+  },
+
   applyToPosition: async (
     positionId: number,
     token: string
@@ -94,7 +111,9 @@ export const applyPositionApi = {
 
 // Api endpoints for showing applicants history
 export const applicantsHistoryApi = {
-  getApplicantsHistory: async (token: string): Promise<dataResponse<any[]>> => {
+  getApplicantsHistory: async (
+    token: string
+  ): Promise<dataResponse<PositionApplied[]>> => {
     return apiRequest(
       `/positionApplied/appliedPosition`,
       { method: "GET" },

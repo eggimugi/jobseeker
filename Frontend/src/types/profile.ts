@@ -1,17 +1,22 @@
 export interface CompanyProfile {
   id?: number;
-  userId: number;
+  userId?: number;
   name: string;
   address: string;
   phone: string;
   description: string;
+  website?: string;
+  foundedYear?: number;
+  industry?: string;
+  companySize?: string;
+  logo?: string | File | null;
   createdAt?: string;
   updatedAt?: string;
 }
 
 export interface SocietyProfile {
   id?: number;
-  userId: number;
+  userId?: number;
   name: string;
   address: string;
   phone: string;

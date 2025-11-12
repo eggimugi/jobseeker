@@ -59,11 +59,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       }
 
       return data;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return {
+          success: false,
+          message:
+            error.response?.data?.message || "Network error. Please try again.",
+        };
+      }
+
       return {
         success: false,
-        message:
-          error.response?.data?.message || "Network error. Please try again.",
+        message: "An unexpected error occurred.",
       };
     }
   };
@@ -84,11 +91,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         }
       );
       return data;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return {
+          success: false,
+          message:
+            error.response?.data?.message || "Network error. Please try again.",
+        };
+      }
+
       return {
         success: false,
-        message:
-          error.response?.data?.message || "Network error. Please try again.",
+        message: "An unexpected error occurred.",
       };
     }
   };

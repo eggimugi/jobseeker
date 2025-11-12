@@ -18,7 +18,7 @@ router.post(
   [verifyToken, authorizeRole(["Society"]), createValidation],
   createSociety
 );
-router.get("/user/:id", [verifyToken], readSociety);
+router.get("/user/", [verifyToken, authorizeRole(["Society"])], readSociety);
 router.put("/:id", updateValidation, updateSociety);
 router.delete("/:id", deleteSociety);
 

@@ -1,64 +1,154 @@
-import z from "zod";
+import { z } from "zod";
+const genderEnum = ["Male", "Female"] as const;
+const roleEnum = ["HRD", "Society"] as const;
 
-export const validatePhone = (phone: string): string | null => {
-  if (!phone.trim()) return "Phone number is required";
-  if (!/^[0-9+\-\s()]+$/.test(phone))
-    return "Please enter a valid phone number";
-  if (phone.replace(/[^0-9]/g, "").length < 10)
-    return "Phone number must be at least 10 digits";
-  return null;
-};
+export const phoneSchema = z
+  .string()
+  .trim()
+  .min(1, "Phone number is required")
+  .regex(/^[0-9+\-\s()]+$/, "Please enter a valid phone number")
+  .refine(
+    (phone) => phone.replace(/[^0-9]/g, "").length >= 12,
+    "Phone number must be at least 12 digits"
+  );
 
-export const validateEmail = (email: string): string | null => {
-  if (!email.trim()) return "Email is required";
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
-    return "Please enter a valid email address";
-  return null;
-};
+export const emailSchema = z
+  .string()
+  .trim()
+  .min(1, "Email is required")
+  .email("Please enter a valid email address");
 
-export const validateName = (name: string): string | null => {
-  if (!name.trim()) return "Name is required";
-  if (name.trim().length < 2) return "Name must be at least 2 characters";
-  return null;
-};
+export const passwordSchema = z
+  .string()
+  .trim()
+  .regex(/^\S+$/, "Please input a valid password")
+  .min(8, "Password must be at least 8 characters");
 
-export const validateAddress = (address: string): string | null => {
-  if (!address.trim()) return "Address is required";
-  if (address.trim().length < 10)
-    return "Please provide a more detailed address";
-  return null;
-};
+export const confirmPasswordSchema = z
+  .string()
+  .min(1, "Please confirm your password");
 
-export const validateDescription = (description: string): string | null => {
-  if (!description.trim()) return "Description is required";
-  if (description.trim().length < 20)
-    return "Description must be at least 20 characters";
-  return null;
-};
+export const nameSchema = z
+  .string()
+  .trim()
+  .min(1, "Name is required")
+  .min(2, "Name must be at least 2 characters");
 
-export const validateDateOfBirth = (dateOfBirth: string): string | null => {
-  if (!dateOfBirth) return "Date of birth is required";
+export const addressSchema = z
+  .string()
+  .trim()
+  .min(1, "Address is required")
+  .min(10, "Please provide a more detailed address");
 
-  const date = new Date(dateOfBirth);
-  const today = new Date();
+export const descriptionSchema = z
+  .string()
+  .trim()
+  .min(1, "Description is required")
+  .min(20, "Description must be at least 20 characters");
 
-  if (isNaN(date.getTime())) return "Please enter a valid date";
-  if (date > today) return "Date of birth cannot be in the future";
+export const dateOfBirthSchema = z
+  .string()
+  .min(1, "Date of birth is required")
+  .refine(
+    (date) => !isNaN(new Date(date).getTime()),
+    "Please enter a valid date"
+  )
+  .refine(
+    (date) => new Date(date) <= new Date(),
+    "Date of birth cannot be in the future"
+  )
+  .refine((date) => {
+    const age = new Date().getFullYear() - new Date(date).getFullYear();
+    return age >= 17;
+  }, "You must be at least 17 years old")
+  .refine((date) => {
+    const age = new Date().getFullYear() - new Date(date).getFullYear();
+    return age <= 100;
+  }, "Please enter a valid date of birth");
 
-  const age = today.getFullYear() - date.getFullYear();
-  if (age < 17) return "You must be at least 17 years old";
-  if (age > 100) return "Please enter a valid date of birth";
+export const skillSchema = z
+  .string()
+  .trim()
+  .min(1, "Skill is required")
+  .min(2, "Skill must be at least 2 characters");
 
-  return null;
-};
+export const skillDetailSchema = z
+  .string()
+  .trim()
+  .min(1, "Skill is required")
+  .min(20, "Description must be at least 20 characters");
 
-export const validateSkill = (skill: string): string | null => {
-  if (!skill.trim()) return "Skill is required";
-  if (skill.trim().length < 2) return "Skill must be at least 2 characters";
-  return null;
-}
-export const validateSkillDetail = (skillDetail: string): string | null => {
-  if (!skillDetail.trim()) return "Skill is required";
-  if (skillDetail.trim().length < 20) return "Description must be at least 20 characters";
-  return null;
-}
+export const positionNameSchema = z
+  .string()
+  .trim()
+  .min(1, "Position name is required")
+  .min(2, "Position name must be at least 2 characters");
+
+export const capacitySchema = z
+  .string()
+  .trim()
+  .min(1, "Capacity is required")
+  .refine(
+    (val) => !isNaN(Number(val)) && Number(val) > 0,
+    "Capacity must be a positive number"
+  );
+
+export const submissionDateSchema = z
+  .string()
+  .min(1, "Date is required")
+  .refine(
+    (date) => !isNaN(new Date(date).getTime()),
+    "Please enter a valid date"
+  );
+
+export const genderSchema = z.enum(genderEnum, {
+  message: "Gender is required",
+});
+
+export const roleSchema = z
+  .enum(roleEnum)
+  .or(z.literal(""))
+  .refine((val) => val !== "", {
+    message: "Role is required",
+  });
+
+export const websiteSchema = z
+  .string()
+  .trim()
+  .min(1, "Website is required")
+  .url("Please enter a valid URL");
+
+export const foundedYearSchema = z.coerce
+  .number()
+  .min(1900, "Please enter a valid year")
+  .max(new Date().getFullYear(), "Please enter a valid year");
+
+export const industrySchema = z
+  .string()
+  .trim()
+  .min(1, "Industry is required")
+  .min(2, "Industry must be at least 2 characters");
+
+export const companySizeSchema = z
+  .string()
+  .trim()
+  .min(1, "Company size is required")
+  .min(1, "Company size must be at least 1 character");
+
+export const logoSchema = z
+  .any()
+  .refine((file) => file instanceof File || file === null, {
+    message: "Logo must be a file or null",
+  })
+  .refine(
+    (file) => {
+      if (file instanceof File) {
+        const validTypes = ["image/jpeg", "image/png", "image/gif"];
+        return validTypes.includes(file.type);
+      }
+      return true; // Allow null
+    },
+    {
+      message: "Logo must be a JPEG, PNG, or GIF image",
+    }
+  );

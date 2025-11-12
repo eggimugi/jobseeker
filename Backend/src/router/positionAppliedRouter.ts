@@ -6,7 +6,7 @@ const router = Router();
 
 router.post("/apply/:id", [verifyToken, authorizeRole(["Society"])], applyToPosition);
 router.get("/appliedPosition", [verifyToken, authorizeRole(["Society"])], getSocietyAppliedPositions);
-router.get("/company", [verifyToken, authorizeRole(["Company"])], getCompanyAppliedPositions);
-router.put("/:id", [verifyToken, authorizeRole(["Company"])], updatePositionAppliedStatus);
+router.get("/company", [verifyToken, authorizeRole(["HRD"])], getCompanyAppliedPositions);
+router.put("/:id", [verifyToken, authorizeRole(["HRD"])], updatePositionAppliedStatus);
 
 export default router;

@@ -1,35 +1,35 @@
 import { apiRequest } from "./api";
-import { JobPosition, dataResponse } from "@/types/hrd";
+import { Application, JobPosition, dataResponse } from "@/types/hrd";
 import { CompanyProfile, ProfileResponse } from "@/types/profile";
 
 // Api endpoints for managing company profiles
 export const companyProfileApi = {
   getCompanyProfileByUser: async (
-      userId: number,
-      token: string
-    ): Promise<ProfileResponse<CompanyProfile>> => {
-      return apiRequest(`/company/user/${userId}`, { method: "GET" }, token);
-    },
-}
+    userId: number,
+    token: string
+  ): Promise<ProfileResponse<CompanyProfile>> => {
+    return apiRequest(`/company/user/${userId}`, { method: "GET" }, token);
+  },
+};
 
 // API endpoints for managing job positions
 export const jobPositionApi = {
   getJobPositions: async (
-    companyId: number,
     token: string
   ): Promise<dataResponse<JobPosition[]>> => {
-    return apiRequest(
-      `/jobpositions/company/${companyId}`,
-      { method: "GET" },
-      token
-    );
+    return apiRequest(`/availablePosition`, { method: "GET" }, token);
+  },
+  getAllJobPositions: async (
+    token: string
+  ): Promise<dataResponse<JobPosition[]>> => {
+    return apiRequest(`/availablePosition/all`, { method: "GET" }, token);
   },
   createJobPosition: async (
     data: Omit<JobPosition, "id" | "createdAt" | "updatedAt" | "companyId">,
     token: string
   ): Promise<dataResponse<JobPosition>> => {
     return apiRequest(
-      "/jobpositions",
+      "/availablePosition",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -46,7 +46,7 @@ export const jobPositionApi = {
     token: string
   ): Promise<dataResponse<JobPosition>> => {
     return apiRequest(
-      `/jobpositions/${id}`,
+      `/availablePosition/${id}`,
       {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -59,6 +59,30 @@ export const jobPositionApi = {
     id: number,
     token: string
   ): Promise<dataResponse<null>> => {
-    return apiRequest(`/jobpositions/${id}`, { method: "DELETE" }, token);
+    return apiRequest(`/availablePosition/${id}`, { method: "DELETE" }, token);
+  },
+};
+
+// API endpoints for managing applications to job positions
+export const applicationApi = {
+  getApplications: async (
+    token: string
+  ): Promise<dataResponse<Application[]>> => {
+    return apiRequest(`/positionApplied/company`, { method: "GET" }, token);
+  },
+  updateApplicationStatus: async (
+    id: number,
+    status: string,
+    token: string
+  ): Promise<dataResponse<Application>> => {
+    return apiRequest(
+      `/positionApplied/${id}`,
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      },
+      token
+    );
   },
 };

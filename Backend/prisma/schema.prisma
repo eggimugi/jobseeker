@@ -31,7 +31,12 @@ model company {
   name               String               @default("")
   address            String               @default("")
   phone              String               @default("")
-  description        String               @default("")
+  description        String               @db.Text
+  website            String?              @default("")
+  industry           industryType
+  logo               String               @default("")
+  companySize        companySizeType
+  foundedYear        Int                  @default(0)
   createdAt          DateTime             @default(now())
   updatedAt          DateTime             @default(now()) @updatedAt
   user_details       user                 @relation(fields: [userId], references: [id])
@@ -43,7 +48,7 @@ model available_position {
   companyId             Int                @default(0)
   position_name         String             @default("")
   capacity              Int                @default(0)
-  description           String             @default("")
+  description           String             @db.Text
   submission_start_date DateTime           @default(now())
   submission_end_date   DateTime           @default(now())
   createdAt             DateTime           @default(now())
@@ -59,7 +64,7 @@ model society {
   address          String             @default("")
   phone            String             @default("")
   date_of_birth    DateTime           @default(now())
-  gender           genderType            
+  gender           genderType
   createdAt        DateTime           @default(now())
   updatedAt        DateTime           @default(now()) @updatedAt
   user_details     user               @relation(fields: [userId], references: [id])
@@ -83,7 +88,7 @@ model position_applied {
   societyId           Int                @default(0)
   availablePositionId Int                @default(0)
   apply_date          DateTime           @default(now())
-  status              statusType         
+  status              statusType
   createdAt           DateTime           @default(now())
   updatedAt           DateTime           @default(now()) @updatedAt
   society             society            @relation(fields: [societyId], references: [id])
@@ -104,4 +109,19 @@ enum statusType {
 enum genderType {
   Male
   Female
+}
+
+enum industryType {
+  tech
+  edu
+  health
+}
+
+enum companySizeType {
+  SIZE_1_10
+  SIZE_11_50
+  SIZE_51_200
+  SIZE_201_500
+  SIZE_501_1000
+  SIZE_1001_PLUS
 }

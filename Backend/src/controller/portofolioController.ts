@@ -16,6 +16,7 @@ const createPortofolio = async (req: Request, res: Response): Promise<any> => {
   try {
     const { skill, description }: portofolioRequestBody = req.body;
     const file = req.file?.filename || "";
+    console.log("Uploaded file:", req.file);
 
     // cek dulu apakah userId valid
     const userId = req.user?.id;
@@ -69,23 +70,23 @@ const createPortofolio = async (req: Request, res: Response): Promise<any> => {
 
 const readPortofolio = async (req: Request, res: Response): Promise<any> => {
   try {
-    const societyId = req.params.id;
-
+    const societyId = req.user?.id;
     if (!societyId) {
-      return res.status(400).json({ message: "Bad Request: no societyId" });
+      return res.status(404).json({ message: "User not found" });
     }
 
-    // cek dulu apakah societyId valid di database
     const society = await prisma.society.findFirst({
-      where: { id: Number(societyId) },
+      where: { userId: Number(societyId) },
     });
-
     if (!society) {
+      console.log(society);
+      console.log(societyId);
+
       return res.status(404).json({ message: "Society not found" });
     }
 
-    const allPortofolios = await prisma.portofolio.findFirst({
-      where: { societyId: Number(societyId) },
+    const allPortofolios = await prisma.portofolio.findMany({
+      where: { societyId: society.id },
     });
 
     return res.status(200).json({
@@ -95,57 +96,78 @@ const readPortofolio = async (req: Request, res: Response): Promise<any> => {
     });
   } catch (error) {
     console.log(error);
-    
+
+    return res.status(500).json(error);
+  }
+};
+
+const readPortofolioById = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
+  try {
+    const id = req.params.id;
+    const portofolio = await prisma.portofolio.findFirst({
+      where: { id: Number(id) },
+    });
+    if (!portofolio) {
+      return res.status(404).json({ message: "Portofolio not found" });
+    }
+    return res.status(200).json({
+      success: true,
+      message: `Portofolio has been retrieved`,
+      data: portofolio,
+    });
+  } catch (error) {
     return res.status(500).json(error);
   }
 };
 
 const updatePortofolio = async (req: Request, res: Response): Promise<any> => {
   try {
-    const id = req.params.id;
+    const id = Number(req.params.id);
 
     const findPortofolio = await prisma.portofolio.findFirst({
-      where: { id: Number(id) },
+      where: { id },
     });
 
     if (!findPortofolio) {
-      return res.status(200).json({
-        message: `Portofolio is not found!`,
+      return res.status(404).json({
+        success: false,
+        message: "Portofolio not found!",
       });
     }
 
-    if (req.file) {
-      let oldFileName = findPortofolio.file;
-      let pathFile = `${ROOT_DIRECTORY}/public/portofolio-file/${oldFileName}`;
-      let existsFile = fs.existsSync(pathFile);
-
-      if (existsFile && oldFileName !== ``) {
-        fs.unlinkSync(pathFile);
+    if (req.file && findPortofolio.file) {
+      const oldFilePath = path.join(ROOT_DIRECTORY, "public", "portofolio-file", findPortofolio.file);
+      if (fs.existsSync(oldFilePath)) {
+        fs.unlinkSync(oldFilePath);
       }
     }
 
-    const { skill, description, file } = req.body;
+    const { skill, description } = req.body;
 
-    const savePortofolio = await prisma.portofolio.update({
-      where: {
-        id: Number(id),
-      },
+    const updatedPortofolio = await prisma.portofolio.update({
+      where: { id },
       data: {
-        skill: skill ?? findPortofolio?.skill,
-        description: description ? description : findPortofolio.description,
-        file: req.file ? req.file.filename : findPortofolio.file,
+        skill: skill ?? findPortofolio.skill,
+        description: description ?? findPortofolio.description,
+        file: req.file?.filename ?? findPortofolio.file,
       },
     });
 
     return res.status(200).json({
       success: true,
-      message: `Portofolio has been updated`,
-      data: savePortofolio,
+      message: "Portofolio has been updated",
+      data: updatedPortofolio,
     });
   } catch (error) {
-    console.log(error);
-    
-    return res.status(500).json(error);
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error,
+    });
   }
 };
 
@@ -189,4 +211,4 @@ const deletePortofolio = async (req: Request, res: Response): Promise<any> => {
   }
 };
 
-export { createPortofolio, readPortofolio, updatePortofolio, deletePortofolio };
+export { createPortofolio, readPortofolio, readPortofolioById, updatePortofolio, deletePortofolio };

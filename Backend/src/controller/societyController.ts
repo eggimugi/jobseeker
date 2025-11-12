@@ -64,7 +64,11 @@ const createSociety = async (req: Request, res: Response): Promise<any> => {
 
 const readSociety = async (req: Request, res: Response): Promise<any> => {
   try {
-    const userId = req.params.id;
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
     const allSociety = await prisma.society.findFirst({
       where: {
         userId: Number(userId),

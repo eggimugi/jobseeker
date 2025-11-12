@@ -6,7 +6,9 @@ import PortofolioRoute from "./router/portofolioRouter";
 import CompanyRoute from "./router/companyRouter";
 import AvailablePositionRoute from "./router/availablePositionRouter";
 import PositionAppliedRoute from "./router/positionAppliedRouter";
-
+import path from "path";
+import { ROOT_DIRECTORY } from "./config";
+import express from "express";
 
 const app = Express();
 
@@ -23,6 +25,7 @@ app.use(`/portofolio`, PortofolioRoute);
 app.use(`/company`, CompanyRoute);
 app.use(`/availablePosition`, AvailablePositionRoute);
 app.use(`/positionApplied`, PositionAppliedRoute);
+app.use("/company-logo", express.static(path.join(ROOT_DIRECTORY, "public/company-logo")));
 
 
 const PORT = 8080;

@@ -151,7 +151,8 @@ const deleteUser = async (req: Request, res: Response): Promise<any> => {
 const authentication = async (req: Request, res: Response): Promise<any> => {
   try {
     const { email, password } = req.body;
-    const findUser = await prisma.user.findFirst({ where: { email } });
+    const findUser = await prisma.user.findFirst({ where: { email } });    
+    
     if (!findUser) {
       return res.status(200).json({ message: "Email not registered" });
     }

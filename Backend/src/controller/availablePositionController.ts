@@ -52,6 +52,7 @@ const createAvailablePosition = async (
     });
 
     return res.status(200).json({
+      success: true,
       message: `New position has been added`,
       data: newAvailablePosition,
     });
@@ -67,17 +68,34 @@ const readAvailablePosition = async (
   res: Response
 ): Promise<any> => {
   try {
-    const search = req.query.search;
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized: no userId",
+      });
+    }
+
+    const search = req.query.search?.toString() || "";
+
+    const company = await prisma.company.findFirst({
+      where: { userId },
+    });
+
+    if (!company) {
+      return res.status(404).json({
+        success: false,
+        message: "Company not found for this user",
+      });
+    }
 
     const allAvailablePositions = await prisma.available_position.findMany({
       where: {
-        OR: [
-          {
-            position_name: {
-              contains: search?.toString() || "",
-            },
-          },
-        ],
+        companyId: company.id,
+        position_name: {
+          contains: search,
+        },
       },
       include: {
         company: {
@@ -91,11 +109,16 @@ const readAvailablePosition = async (
 
     return res.status(200).json({
       success: true,
-      message: `Available Positions have been retrieved`,
+      message: `Available positions retrieved successfully`,
       data: allAvailablePositions,
     });
   } catch (error) {
-    return res.status(500).json(error);
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error,
+    });
   }
 };
 
@@ -147,6 +170,36 @@ const updateAvailablePosition = async (
     });
   } catch (error) {
     return res.status(500).json(error);
+  }
+};
+
+const readAllAvailablePositions = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
+  try {
+    const allAvailablePositions = await prisma.available_position.findMany({
+      include: {
+        company: {
+          select: {
+            name: true,
+            address: true,
+          },
+        },
+      },
+    });
+    return res.status(200).json({
+      success: true,
+      message: `All available positions retrieved successfully`,
+      data: allAvailablePositions,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error,
+    });
   }
 };
 
@@ -223,6 +276,7 @@ const getAvailablePositionByStatus = async (
 export {
   createAvailablePosition,
   readAvailablePosition,
+  readAllAvailablePositions,
   updateAvailablePosition,
   deleteAvailablePosition,
   getAvailablePositionByStatus,

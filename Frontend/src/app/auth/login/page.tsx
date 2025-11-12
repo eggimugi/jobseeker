@@ -1,183 +1,230 @@
-'use client';
-import { useState } from 'react';
-import { useAuth } from '@/context/authContext';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+"use client";
+import { useState } from "react";
+import { useAuth } from "@/context/authContext";
+import { useRouter } from "next/navigation";
+import { useFormValidation } from "@/hooks/useFormValidation";
+import { emailSchema, passwordSchema } from "@/utils/validation";
+import InputField from "@/components/form/inputField";
+import Link from "next/link";
+
+type LoginFormData = {
+  email: string;
+  password: string;
+};
 
 export default function LoginPage() {
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-  });
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  
+
   const { login } = useAuth();
   const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
+  const handleFormSubmit = async (data: LoginFormData) => {
+    setError("");
     setLoading(true);
 
     try {
       const result = await login(formData.email, formData.password);
-      
+
       if (result.success && result.user) {
         // Redirect based on role
-        if (result.user.role === 'HRD') {
-          router.push('/hrd');
+        if (result.user.role === "HRD") {
+          router.push("/hrd");
         } else {
-          router.push('/society');
+          router.push("/society");
         }
       } else {
-        setError(result.message || 'Login failed');
+        setError(result.message || "Login failed");
       }
     } catch (error) {
-      setError('An unexpected error occurred');
+      setError("An unexpected error occurred");
     } finally {
       setLoading(false);
     }
   };
 
+  const { formData, errors, handleSubmit, handleChange, handleBlur } =
+    useFormValidation({
+      schemas: {
+        email: emailSchema,
+        password: passwordSchema,
+      },
+      initialValues: {
+        email: "",
+        password: "",
+      },
+      onSubmit: handleFormSubmit,
+      validateOnChange: true,
+      validateOnBlur: true,
+    });
+
   return (
-    <div className="min-h-screen bg-white flex space-x-28">
-      {/* Left Side */}
-      <div className="flex-3/5 pt-8 ps-12">
-        {/* Header */}
-        <header className="flex justify-between w-full font-bold text-xl">
-          <Link href="/">
+    <div className="min-h-screen bg-white px-12 py-8">
+      <header className="flex flex-col xl:flex-row justify-between xl:items-center mb-12">
+        <div className="flex justify-between items-center w-full mb-10 xl:mb-0">
+          <Link href="/" className="font-bold text-2xl">
             Job<span className="text-orange-600 italic">Seeker</span>
           </Link>
           <p className="border border-black rounded-full px-3 py-1 text-sm font-medium">
-            SignIn
-          </p>
-        </header>
-
-        {/* Welcoming Text */}
-        <div className="flex flex-col justify-center items-start mt-12">
-          <h1 className="text-4xl font-bold">
-            Welcome back, Hero!
-          </h1>
-          <h1 className="text-4xl font-bold text-orange-600">
-            Time to get back on the quest!
-          </h1>
-          <p className="mt-4 text-lg max-w-2xl">
-            Ready to keep exploring, applying, and building your future? Log in and let’s find (or post) the perfect job together!
+            LogIn
           </p>
         </div>
+        <div className="xl:hidden">
+          <h1 className="text-4xl font-bold leading-tight mb-4">
+            Hey there,{" "}
+            <span className="text-orange-600 italic">
+              job hunters & job givers!
+            </span>
+          </h1>
+          <p className="text-lg text-gray-600 leading-relaxed">
+            Sign up now and let’s make your perfect match easier, smarter, and a
+            whole lot more fun.
+          </p>
+        </div>
+      </header>
 
-        {/* Registration Form */}
-        <div className="flex mt-12">
-          <div className="border rounded-lg w-full p-6">
-            <form className="space-y-6" onSubmit={handleSubmit}>
-              <div className="flex flex-col">
-                <div className="flex-1">
-                  <label htmlFor="email" className="block mb-1">
-                    Your magic email
-                  </label>
-                  <input
-                    id="email"
-                    type="email"
-                    required
-                    value={formData.email}
-                    onChange={(e) =>
-                      setFormData((prev) => ({ ...prev, email: e.target.value }))
-                    }
-                    className="w-full border-b border-gray-300 bg-transparent outline-none py-1 text-sm"
-                    placeholder="Ex. John Doe"
-                  />
-                </div>
-                <div className="flex-1 mt-8">
-                  <label htmlFor="password" className="block mb-1">
-                      Shh.. your secret password
-                    </label>
-                    <input
-                      id="password"
-                      type="password"
-                      required
-                      value={formData.password}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          password: e.target.value,
-                        }))
-                      }
-                      className="w-full border-b border-gray-300 bg-transparent outline-none py-1 text-sm"
-                      placeholder="Ex. johndoe123"
-                    />
-                </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
+        {/* Left Side - Minimal Illustration */}
+        <div className="space-y-8 order-2 lg:order-1">
+          <div className="hidden xl:block">
+            <h1 className="text-4xl font-bold leading-tight mb-4">
+              Welcome back!{" "}
+              <span className="text-orange-600 italic">Time to get back!</span>
+            </h1>
+            <p className="text-lg text-gray-600 leading-relaxed">
+              Sign up now and let’s make your perfect match easier, smarter, and
+              a whole lot more fun.
+            </p>
+          </div>
+
+          {/* Abstract Illustration */}
+          <div className="relative h-96 flex items-center justify-center">
+            {/* Background Shapes */}
+            <svg viewBox="0 0 400 400" className="w-full h-full">
+              {/* Large Circle */}
+              <circle cx="200" cy="200" r="150" fill="#FED7AA" opacity="0.3" />
+
+              {/* Medium Circle */}
+              <circle cx="280" cy="150" r="80" fill="#FB923C" opacity="0.2" />
+
+              {/* Small Decorative Circles */}
+              <circle cx="120" cy="120" r="40" fill="#EA580C" opacity="0.15" />
+              <circle cx="300" cy="280" r="50" fill="#9A3412" opacity="0.1" />
+
+              {/* Abstract Lines */}
+              <path
+                d="M100,200 Q200,150 300,200"
+                stroke="#EA580C"
+                strokeWidth="3"
+                fill="none"
+                opacity="0.3"
+              />
+              <path
+                d="M80,250 Q200,300 320,250"
+                stroke="#FB923C"
+                strokeWidth="2"
+                fill="none"
+                opacity="0.2"
+              />
+
+              {/* Dots */}
+              <circle cx="150" cy="300" r="8" fill="#EA580C" />
+              <circle cx="250" cy="100" r="6" fill="#FB923C" />
+              <circle cx="350" cy="200" r="10" fill="#9A3412" opacity="0.5" />
+            </svg>
+
+            {/* Floating Tags */}
+            <div className="absolute top-16 left-8 bg-white px-4 py-2 rounded-full shadow-lg text-sm font-medium">
+              💼 Career Growth
+            </div>
+            <div className="absolute top-32 right-12 bg-orange-600 text-white px-4 py-2 rounded-full shadow-lg text-sm font-medium">
+              🚀 Fast Hiring
+            </div>
+            <div className="absolute bottom-24 left-16 bg-white px-4 py-2 rounded-full shadow-lg text-sm font-medium">
+              ⭐ Top Companies
+            </div>
+            <div className="absolute bottom-32 right-8 bg-black text-white px-4 py-2 rounded-full shadow-lg text-sm font-medium">
+              💡 Dream Jobs
+            </div>
+          </div>
+
+          {/* Trust Indicators */}
+          <div className="flex items-center justify-center gap-8 pt-4">
+            <div className="text-center">
+              <p className="text-2xl font-bold text-orange-600">98%</p>
+              <p className="text-xs text-gray-600">Success Rate</p>
+            </div>
+            <div className="h-8 w-px bg-gray-300"></div>
+            <div className="text-center">
+              <p className="text-2xl font-bold text-orange-600">24h</p>
+              <p className="text-xs text-gray-600">Avg. Response</p>
+            </div>
+            <div className="h-8 w-px bg-gray-300"></div>
+            <div className="text-center">
+              <p className="text-2xl font-bold text-orange-600">50K+</p>
+              <p className="text-xs text-gray-600">Happy Users</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Side - Form */}
+        <div className="order-1 lg:order-2 lg:p-8 lg:pt-0 lg:pr-0 rounded-lg">
+          <form
+            className="space-y-12 p-8 rounded-lg border"
+            onSubmit={handleSubmit}
+          >
+            <div className="flex flex-col">
+              {/* Email */}
+              <div className="flex-1">
+                <InputField
+                  id="email"
+                  name="email"
+                  type="email"
+                  label="Your Email Address"
+                  value={formData.email}
+                  error={errors.email}
+                  placeholder="Ex. johndoe@email.com"
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                />
               </div>
 
-              {error && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-                  {error}
-                </div>
-              )}
+              {/* Password */}
+              <div className="flex-1 mt-8">
+                <InputField
+                  id="password"
+                  name="password"
+                  type="password"
+                  label="Your Password"
+                  value={formData.password}
+                  error={errors.password}
+                  placeholder="Enter your password"
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                />
+              </div>
+            </div>
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="bg-black text-white font-medium px-4 py-1 rounded cursor-pointer hover:bg-gray-800 transition"
+            {/* Tombol Submit */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-black text-white font-medium px-4 py-1 rounded cursor-pointer hover:bg-gray-800 transition"
+            >
+              {loading ? "LogingIn..." : "Login!"}
+            </button>
+
+            {/* Link Login */}
+            <div className="text-sm text-center text-gray-600">
+              Don’t have an account?{" "}
+              <Link
+                href="/auth/register"
+                className="text-orange-600 hover:text-orange-700 font-medium"
               >
-                {loading ? "Signing In" : "SignIn"}
-              </button>
-            </form>
-
-            <div className="mt-6">
-              <p className="text-sm text-gray-600">
-                Don't have an account?{" "}
-                <Link
-                  href="/auth/register"
-                  className="text-orange-600 hover:text-orange-700 hover:underline font-medium"
-                >
-                  Sign up here
-                </Link>
-              </p>
+                SignUp
+              </Link>
             </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Right Side */}
-      <div className="flex-2/5 pt-8 pe-12">
-        <div className="flex flex-col justify-start items-center h-full relative">
-          <div className="absolute flex flex-col items-center">
-            {/* Profile Auth */}
-            <img src="/images/ProfileAuth.svg" alt="Profile Auth Image" />
-            {/* Bubble Text */}
-            <div className="bg-black text-white px-4 py-2 rounded-full font-semibold absolute top-60 left-0">
-              <p>Search Active Jobs</p>
-            </div>
-            <div className="bg-orange-600 text-white px-4 py-2 rounded-full font-semibold absolute top-80 right-25">
-              <p>Build Your Portofolio</p>
-            </div>
-            <div className="bg-black text-white px-4 py-2 rounded-full font-semibold absolute top-105 left-10">
-              <p>Search Active Jobs</p>
-            </div>
-            {/* Quote */}
-            <div className="bg-orange-600 text-white px-4 py-3 rounded">
-              <p>
-                The <strong>worst</strong> day working on{" "}
-                <strong>your purpose</strong> will still be{" "}
-                <strong>better</strong> than the <strong>best day</strong>{" "}
-                working on something that <strong>isn’t your purpose</strong>.
-              </p>
-              <p className="mt-8">Julian Blanc</p>
-            </div>
-          </div>
-          {/* Blob */}
-          <svg
-            viewBox="0 0 160 200"
-            xmlns="http://www.w3.org/2000/svg"
-            className=""
-          >
-            <path
-              fill="#FA4B1B"
-              d="M44.6,-50.6C59.8,-40.4,75.4,-28.3,82.5,-11.2C89.5,5.9,87.9,27.9,76.7,41.4C65.5,55,44.6,60.2,24.6,67.4C4.6,74.6,-14.6,83.9,-28.1,78.4C-41.5,73,-49.2,52.9,-56.3,35.2C-63.4,17.4,-69.8,2,-67.5,-12C-65.1,-26,-54,-38.5,-41.3,-49.2C-28.6,-59.8,-14.3,-68.5,0.2,-68.8C14.7,-69.1,29.4,-60.9,44.6,-50.6Z"
-              transform="translate(70 70)"
-            />
-          </svg>
+          </form>
         </div>
       </div>
     </div>
